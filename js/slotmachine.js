@@ -135,6 +135,7 @@ function virtualSlotMachine() {
         wheels[ix].XXposition = 0; //Custom variable added to THREE object
         wheels[ix].XXspinUntil = 0; //Custom variable added to THREE object
         wheels[ix].XXstopSegment = 0; //Custom variable added to THREE object
+        wheels[ix].rotation.x = (wheels[ix].XXsegment * WHEEL_SEGMENT) - 0.20;
       }
     }
   );
@@ -174,25 +175,34 @@ function virtualSlotMachine() {
 
   //TEMP Keyboard handler
   window.addEventListener("keydown", function (event) {
-    if (event.keyCode === 65) {
-      gameState = (gameState + 1) % 2;
+    //If the game is idle the allow the user to press space to start the wheels
+    if (event.keyCode === 32) {
+      if (gameState === 0) {
+        gameState = 1;
+      }
     }
   }, false);
 
-  function RNG() {
+  function Rng() {
     //Random Number Generator
     var wheelNumbers = [];
-    RNG.prototype.generate = function () {
+    Rng.prototype.generate = function () {
       //This function constantly generates random numbers for each wheel
       var ix = 0;
       for (ix = 0; ix < 3; ix += 1) {
         wheelNumbers[ix] = Math.floor(Math.random() * 8); //TODO use bigger number and get to numbers for % payout
       }
     };
-    RNG.prototype.getNumber = function (ix) {
+    Rng.prototype.getNumber = function (ix) {
       //Return a number for the selected wheel
       return wheelNumbers[ix];
     };
+  }
+
+  function amountWon() {
+    //Returns the amount player has won this rutn - 0 if player has not won.
+    //TODO!!!
+    return 0; //Always lose! TODO
   }
 
   // add the output of the renderer to the html element
@@ -201,7 +211,7 @@ function virtualSlotMachine() {
   // call the render function
   //renderer.render(scene, camera);
 
-  var rng = new RNG();
+  var rng = new Rng();
   var clock = new THREE.Clock();
 
   function renderScene() {
@@ -214,10 +224,7 @@ function virtualSlotMachine() {
     if (check !== 'undefined') {
       var ix;
       switch (gameState) {
-      case 0: //Waiting for play to hit start
-        for (ix = 0; ix < 3; ix += 1) {
-          wheels[ix].rotation.x = (wheels[ix].XXsegment * WHEEL_SEGMENT) - 0.20;
-        }
+      case 0: //Waiting for player to hit start
         break;
 
       case 1: //Capture RNG values for each wheel and set up the wheel spins.
@@ -232,8 +239,11 @@ function virtualSlotMachine() {
         for (ix = 0; ix < 3; ix += 1) {
           if (wheels[ix].XXsegment === wheels[ix].XXstopSegment && wheels[ix].XXspinUntil < clock.getElapsedTime()) {
             //This wheel has stoped spinning. Align wheel
-            //gameState = 3;
             wheels[ix].rotation.x = (wheels[ix].XXsegment * WHEEL_SEGMENT) - 0.20;
+            if (ix === 2) {
+              //Third wheel stopped? Then spinning done, time to see if we've won!
+              gameState = 3;
+            }
           } else {
             //Spin until wheel spinning time is exceeded and the wheel has landed on the chosen segment
             wheels[ix].XXposition += 3 * delta;
@@ -247,6 +257,13 @@ function virtualSlotMachine() {
         break;
 
       case 3: //Spinning stopped
+        if (amountWon() !== 0) {
+          //Player has won!!!
+          gameState = 4;
+        } else {
+          //Player has not won this time
+          gameState = 0;
+        }
         break;
 
       case 4: //Player has won!
