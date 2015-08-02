@@ -252,6 +252,14 @@ function virtualSlotMachine() {
     return 0; //Always lose! TODO
   }
 
+  function onResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    console.log("resize!");
+  }
+  window.addEventListener('resize', onResize, false);
+
   // add the output of the renderer to the html element
   document.body.appendChild(renderer.domElement);
   //document.getElementById("WebGL-output").appendChild(renderer.domElement);
@@ -311,6 +319,9 @@ function virtualSlotMachine() {
           //Player has not won this time
           gameState = 0;
         }
+        /*console.log("W0:" + wheels[0].XXsegment);
+        console.log("W1:" + wheels[1].XXsegment);
+        console.log("W2:" + wheels[2].XXsegment);*/
         break;
 
       case 4: //Player has won!
