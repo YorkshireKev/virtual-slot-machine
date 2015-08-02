@@ -143,7 +143,8 @@ function virtualSlotMachine() {
   //Add the linebars
   var linebarGeometery = new THREE.CylinderGeometry(0.5, 0.5, 30, 16);
   var linebarMaterial = new THREE.MeshLambertMaterial({
-    color: 0xff000
+    color: 0xff000,
+    ambient: 0xff0000
   });
 
   //bottom linebar
@@ -162,6 +163,21 @@ function virtualSlotMachine() {
   linebar2.castShadow = true;
   scene.add(linebar2);
 
+  //Add the start/spin button
+  var startButtonGeometery = new THREE.BoxGeometry(15, 2.5, 5);
+  var startButtonMaterial = new THREE.MeshLambertMaterial({
+    color: 0xffff00,
+    ambient: 0xffff00
+  });
+
+  //Position and the buton to the scene
+  var startButton = new THREE.Mesh(startButtonGeometery, startButtonMaterial);
+  startButton.position.z = 15;
+  startButton.position.y = -14;
+  startButton.castShadow = true;
+  scene.add(startButton);
+
+  //Camera controls
   var orbitControls = new THREE.OrbitControls(camera);
   orbitControls.rotateSpeed = 1.0;
   orbitControls.zoomSpeed = 1.0;
@@ -173,15 +189,44 @@ function virtualSlotMachine() {
   orbitControls.minDistance = 25;
   orbitControls.maxDistance = 100;
 
-  //TEMP Keyboard handler
+  //Keyboard handler - Space to spin
   window.addEventListener("keydown", function (event) {
     //If the game is idle the allow the user to press space to start the wheels
     if (event.keyCode === 32) {
+      startButton.position.y = -15;
       if (gameState === 0) {
         gameState = 1;
       }
     }
   }, false);
+  window.addEventListener("keyup", function (event) {
+    //If the game is idle the allow the user to press space to start the wheels
+    if (event.keyCode === 32) {
+      startButton.position.y = -14;
+    }
+  }, false);
+
+  //Mouse hander - Click the big yellow button to spin.
+  function onDocumentMouseDown(event) {
+    var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5);
+    vector = vector.unproject(camera);
+    var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+    var intersects = raycaster.intersectObjects([startButton]);
+    if (intersects.length === 1) {
+      //Button Clicked, so push button down. TODO add mouse up to release button!
+      startButton.position.y = -15;
+      //Spin wheels if not already spinning.
+      if (gameState === 0) {
+        gameState = 1;
+      }
+    }
+  }
+  document.addEventListener('mousedown', onDocumentMouseDown, false);
+
+  function onDocumentMouseUp() {
+    startButton.position.y = -14;
+  }
+  document.addEventListener('mouseup', onDocumentMouseUp, false);
 
   function Rng() {
     //Random Number Generator
@@ -268,6 +313,7 @@ function virtualSlotMachine() {
 
       case 4: //Player has won!
         break;
+        //TODO - Do something cool and then move on to gameState = 0;
       } //end switch gameState
     } //end Model valid (i.e. loaded)
 
