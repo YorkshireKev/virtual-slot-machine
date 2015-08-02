@@ -163,12 +163,14 @@ function virtualSlotMachine() {
   linebar2.castShadow = true;
   scene.add(linebar2);
 
-  //Add the start/spin button
+    //Add the start/spin button
   var startButtonGeometery = new THREE.BoxGeometry(15, 2.5, 5);
+  var startButtonTexture = THREE.ImageUtils.loadTexture("images/start.png");
   var startButtonMaterial = new THREE.MeshLambertMaterial({
     color: 0xffff00,
     ambient: 0xffff00
   });
+  startButtonMaterial.map = startButtonTexture;
 
   //Position and the buton to the scene
   var startButton = new THREE.Mesh(startButtonGeometery, startButtonMaterial);
