@@ -239,19 +239,51 @@ function virtualSlotMachine() {
       //This function constantly generates random numbers for each wheel
       var ix = 0;
       for (ix = 0; ix < 3; ix += 1) {
-        wheelNumbers[ix] = Math.floor(Math.random() * 8); //TODO use bigger number and get to numbers for % payout
+        wheelNumbers[ix] = Math.floor(Math.random() * 40);
       }
     };
     Rng.prototype.getNumber = function (ix) {
       //Return a number for the selected wheel
-      return wheelNumbers[ix];
+      if (wheelNumbers[ix] <= 4) {
+        return 0; //Lucky 7's
+      }
+      if (wheelNumbers[ix] === 5) {
+        return 1; //Orange
+      }
+      if (wheelNumbers[ix] === 6) {
+        return 2; //Plum
+      }
+      if (wheelNumbers[ix] >= 7 && wheelNumbers[ix] <= 17) {
+        return 3; //Bar
+      }
+      if (wheelNumbers[ix] === 18) {
+        return 4; //Banana
+      }
+      if (wheelNumbers[ix] === 19) {
+        return 5; //Melon
+      }
+      if (wheelNumbers[ix] >= 20 && wheelNumbers[ix] <= 38) {
+        return 6; //Cherry
+      }
+      if (wheelNumbers[ix] === 39) {
+        return 7; //Lemon
+      }
+      //return wheelNumbers[ix];
     };
   }
 
   function amountWon() {
     //Returns the amount player has won this rutn - 0 if player has not won.
-    //TODO!!!
-    return 0; //Always lose! TODO
+    if (wheels[0].XXstopSegment === 6 && wheels[1].XXstopSegment === 6 && wheels[2].XXstopSegment === 6) {
+      return 5;
+    }
+    if (wheels[0].XXstopSegment === 3 && wheels[1].XXstopSegment === 3 && wheels[2].XXstopSegment === 3) {
+      return 10;
+    }
+    if (wheels[0].XXstopSegment === 0 && wheels[1].XXstopSegment === 0 && wheels[2].XXstopSegment === 0) {
+      return 30;
+    }
+    return 0; //None of the above? then player has lost.
   }
 
   function onResize() {
@@ -316,8 +348,10 @@ function virtualSlotMachine() {
         break;
 
       case 3: //Spinning stopped
-        if (amountWon() !== 0) {
+        var prize = amountWon();
+        if (prize !== 0) {
           //Player has won!!!
+          winnings += prize;
           document.getElementById('creditsWon').innerHTML = "Credits Won: " + winnings; //TODO Update after win animation
           gameState = 4;
         } else {
@@ -330,8 +364,9 @@ function virtualSlotMachine() {
         break;
 
       case 4: //Player has won!
-        break;
         //TODO - Do something cool and then move on to gameState = 0;
+        gameState = 0;
+        break;
       } //end switch gameState
     } //end Model valid (i.e. loaded)
 
