@@ -45,8 +45,10 @@ SOFTWARE.
 function virtualSlotMachine() {
   'use strict';
 
-  var WHEEL_SEGMENT = Math.PI / 4;
-  var gameState = 0; //0 Waiting, 1 Spinning, 2 Won, 3 Lost
+  var WHEEL_SEGMENT = Math.PI / 4,
+    gameState = 0,
+    totalGames = 0,
+    winnings = 0;
 
   function initStats() {
     var stats = new Stats();
@@ -163,7 +165,7 @@ function virtualSlotMachine() {
   linebar2.castShadow = true;
   scene.add(linebar2);
 
-    //Add the start/spin button
+  //Add the start/spin button
   var startButtonGeometery = new THREE.BoxGeometry(15, 2.5, 5);
   var startButtonTexture = THREE.ImageUtils.loadTexture("images/start.png");
   var startButtonMaterial = new THREE.MeshLambertMaterial({
@@ -288,6 +290,8 @@ function virtualSlotMachine() {
           wheels[ix].XXstopSegment = rng.getNumber(ix);
         }
         gameState = 2;
+        totalGames += 1;
+        document.getElementById('gamesPlayed').innerHTML = "Credits Played: " + totalGames;
         break;
 
       case 2: //Spin those wheels!
@@ -314,6 +318,7 @@ function virtualSlotMachine() {
       case 3: //Spinning stopped
         if (amountWon() !== 0) {
           //Player has won!!!
+          document.getElementById('creditsWon').innerHTML = "Credits Won: " + winnings; //TODO Update after win animation
           gameState = 4;
         } else {
           //Player has not won this time
