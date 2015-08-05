@@ -205,7 +205,7 @@ function virtualSlotMachine() {
   //Keyboard handler - Space to spin
   window.addEventListener("keydown", function (event) {
     //If the game is idle the allow the user to press space to start the wheels
-    if (event.keyCode === 32) {
+    if (event.keyCode === 32 || event.keyCode === 13) {
       startButton.position.y = -15;
       if (gameState === 0) {
         gameState = 1;
@@ -214,7 +214,7 @@ function virtualSlotMachine() {
   }, false);
   window.addEventListener("keyup", function (event) {
     //If the game is idle the allow the user to press space to start the wheels
-    if (event.keyCode === 32) {
+    if (event.keyCode === 32 || event.keyCode === 13) {
       startButton.position.y = -14;
     }
   }, false);
