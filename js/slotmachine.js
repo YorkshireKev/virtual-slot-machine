@@ -145,8 +145,8 @@ function virtualSlotMachine() {
   //Add the linebars
   var linebarGeometery = new THREE.CylinderGeometry(0.5, 0.5, 30, 16);
   var linebarMaterial = new THREE.MeshLambertMaterial({
-    color: 0xff0000,
-    ambient: 0xff0000
+    color: 0x00ff00,
+    ambient: 0x00ff00
   });
 
   //bottom linebar
@@ -182,7 +182,7 @@ function virtualSlotMachine() {
   scene.add(startButton);
 
   //Coins to display when player wins
-  var coinGeometery = new THREE.CylinderGeometry(4, 4, 1, 5);
+  var coinGeometery = new THREE.CylinderGeometry(3, 3, 1, 18);
   var coinMaterial = new THREE.MeshLambertMaterial({
     color: 0xffff00,
     ambient: 0xffff00
@@ -285,6 +285,7 @@ function virtualSlotMachine() {
   }
 
   function amountWon() {
+    //return 5; //FORCE A PAYOUT FOR TESTING - REMOVE THIS LINE!
     //Returns the amount player has won this rutn - 0 if player has not won.
     if (wheels[0].XXstopSegment === 6 && wheels[1].XXstopSegment === 6 && wheels[2].XXstopSegment === 6) {
       return 5;
@@ -315,19 +316,14 @@ function virtualSlotMachine() {
   var rng = new Rng();
   var clock = new THREE.Clock();
 
-  var step = [];
-  var coin = [];
-  var ix = 0;
-  var amtwon = 5;
-  //Position a coin
-  for (ix = 0; ix < amtwon; ix += 1) {
-    coin[ix] = new THREE.Mesh(coinGeometery, coinMaterial);
-    coin[ix].rotation.z = 15;
-    coin[ix].castShadow = true;
-    coin[ix].position.x = ((ix + 0.5) * (40 / amtwon)) - 20;
-    step[ix] = Math.PI;
-    scene.add(coin[ix]);
-  }
+  //Some variables for the coin animation when a player wins
+  var step = [],
+    speed = [],
+    coin = [],
+    iy = 0,
+    amtwon = 0,
+    coinRemoved = [],
+    coinsDone = 0;
 
   function renderScene() {
     stats.update();
@@ -340,15 +336,6 @@ function virtualSlotMachine() {
       var ix;
       switch (gameState) {
       case 0: //Waiting for player to hit start
-        for (ix = 0; ix < amtwon; ix += 1) {
-          if (step[ix] < Math.PI * 2) {
-            step[ix] += delta;
-            coin[ix].position.z = 24 + (12 * (Math.cos(step[ix])));
-            coin[ix].position.y = -4 + (20 * Math.abs(Math.sin(step[ix])));
-          } else {
-            step[ix] = Math.PI; //REMOVE OBJECT FROM SCENE 
-          }
-        }
         break;
 
       case 1: //Capture RNG values for each wheel and set up the wheel spins.
@@ -393,12 +380,54 @@ function virtualSlotMachine() {
         break;
 
       case 4: //Player has won!
-        //TODO - Do something cool and then move on to gameState = 0;
-        //TODO Update after win animation (just before gameState = 0)
-        var prize = amountWon();
-        winnings += prize;
-        document.getElementById('creditsWon').innerHTML = "Credits Won: " + winnings;
-        gameState = 0;
+        //Set up and add coins to scene
+        step = [];
+        speed = [];
+        coin = [];
+        iy = 0;
+        amtwon = amountWon();
+        coinRemoved = [];
+        coinsDone = 0;
+        //Position a coin
+        for (iy = 0; iy < amtwon; iy += 1) {
+          coin[iy] = new THREE.Mesh(coinGeometery, coinMaterial);
+          coin[iy].rotation.z = Math.random() * 50;
+          coin[iy].castShadow = true;
+          coin[iy].position.x = ((iy + 0.5) * (40 / amtwon)) - 20;
+          step[iy] = Math.PI;
+          speed[iy] = (Math.random() * 0.5) + 1;
+          coinRemoved[iy] = false;
+          scene.add(coin[iy]);
+        }
+        gameState = 5;
+        break;
+
+      case 5: //Play coin animation - removing each coin when complete
+        for (iy = 0; iy < amtwon; iy += 1) {
+          if (step[iy] < Math.PI * 2) {
+            step[iy] += (delta * speed[iy]);
+            coin[iy].position.z = 24 + (12 * (Math.cos(step[iy])));
+            coin[iy].position.y = -4 + (20 * Math.abs(Math.sin(step[iy])));
+            coin[iy].rotation.z += delta;
+          } else {
+            if (coinRemoved[iy] === false) {
+              scene.remove(coin[iy]);
+              coinsDone += 1;
+              coinRemoved[iy] = true;
+              console.log(coinsDone);
+            }
+          }
+        }
+        if (coinsDone >= amtwon) {
+          winnings += amtwon;
+          document.getElementById('creditsWon').innerHTML = "Credits Won: " + winnings;
+          step = [];
+          speed = [];
+          coin = [];
+          gameState = 0;
+          console.log("coinDone: " + coinsDone);
+          console.log("amtwon: " + amtwon);
+        }
         break;
       } //end switch gameState
     } //end Model valid (i.e. loaded)
