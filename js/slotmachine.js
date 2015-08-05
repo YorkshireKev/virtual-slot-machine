@@ -145,7 +145,7 @@ function virtualSlotMachine() {
   //Add the linebars
   var linebarGeometery = new THREE.CylinderGeometry(0.5, 0.5, 30, 16);
   var linebarMaterial = new THREE.MeshLambertMaterial({
-    color: 0xff000,
+    color: 0xff0000,
     ambient: 0xff0000
   });
 
@@ -181,6 +181,14 @@ function virtualSlotMachine() {
   startButton.castShadow = true;
   scene.add(startButton);
 
+  //Coins to display when player wins
+  var coinGeometery = new THREE.CylinderGeometry(4, 4, 1, 5);
+  var coinMaterial = new THREE.MeshLambertMaterial({
+    color: 0xffff00,
+    ambient: 0xffff00
+  });
+
+
   //Camera controls
   var orbitControls = new THREE.OrbitControls(camera);
   orbitControls.rotateSpeed = 1.0;
@@ -192,6 +200,7 @@ function virtualSlotMachine() {
   orbitControls.maxAzimuthAngle = Math.PI / 2;
   orbitControls.minDistance = 25;
   orbitControls.maxDistance = 100;
+
 
   //Keyboard handler - Space to spin
   window.addEventListener("keydown", function (event) {
@@ -210,6 +219,7 @@ function virtualSlotMachine() {
     }
   }, false);
 
+
   //Mouse hander - Click the big yellow button to spin.
   function onDocumentMouseDown(event) {
     var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5);
@@ -217,7 +227,7 @@ function virtualSlotMachine() {
     var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
     var intersects = raycaster.intersectObjects([startButton]);
     if (intersects.length === 1) {
-      //Button Clicked, so push button down. TODO add mouse up to release button!
+      //Button Clicked, so push button down.
       startButton.position.y = -15;
       //Spin wheels if not already spinning.
       if (gameState === 0) {
@@ -227,10 +237,12 @@ function virtualSlotMachine() {
   }
   document.addEventListener('mousedown', onDocumentMouseDown, false);
 
+
   function onDocumentMouseUp() {
     startButton.position.y = -14;
   }
   document.addEventListener('mouseup', onDocumentMouseUp, false);
+
 
   function Rng() {
     //Random Number Generator
@@ -303,6 +315,20 @@ function virtualSlotMachine() {
   var rng = new Rng();
   var clock = new THREE.Clock();
 
+  var step = [];
+  var coin = [];
+  var ix = 0;
+  var amtwon = 5;
+  //Position a coin
+  for (ix = 0; ix < amtwon; ix += 1) {
+    coin[ix] = new THREE.Mesh(coinGeometery, coinMaterial);
+    coin[ix].rotation.z = 15;
+    coin[ix].castShadow = true;
+    coin[ix].position.x = ((ix + 0.5) * (40 / amtwon)) - 20;
+    step[ix] = Math.PI;
+    scene.add(coin[ix]);
+  }
+
   function renderScene() {
     stats.update();
     var delta = clock.getDelta();
@@ -314,6 +340,15 @@ function virtualSlotMachine() {
       var ix;
       switch (gameState) {
       case 0: //Waiting for player to hit start
+        for (ix = 0; ix < amtwon; ix += 1) {
+          if (step[ix] < Math.PI * 2) {
+            step[ix] += delta;
+            coin[ix].position.z = 24 + (12 * (Math.cos(step[ix])));
+            coin[ix].position.y = -4 + (20 * Math.abs(Math.sin(step[ix])));
+          } else {
+            step[ix] = Math.PI; //REMOVE OBJECT FROM SCENE 
+          }
+        }
         break;
 
       case 1: //Capture RNG values for each wheel and set up the wheel spins.
@@ -348,29 +383,27 @@ function virtualSlotMachine() {
         break;
 
       case 3: //Spinning stopped
-        var prize = amountWon();
-        if (prize !== 0) {
+        if (amountWon() !== 0) {
           //Player has won!!!
-          winnings += prize;
-          document.getElementById('creditsWon').innerHTML = "Credits Won: " + winnings; //TODO Update after win animation
           gameState = 4;
         } else {
           //Player has not won this time
           gameState = 0;
         }
-        /*console.log("W0:" + wheels[0].XXsegment);
-        console.log("W1:" + wheels[1].XXsegment);
-        console.log("W2:" + wheels[2].XXsegment);*/
         break;
 
       case 4: //Player has won!
         //TODO - Do something cool and then move on to gameState = 0;
+        //TODO Update after win animation (just before gameState = 0)
+        var prize = amountWon();
+        winnings += prize;
+        document.getElementById('creditsWon').innerHTML = "Credits Won: " + winnings;
         gameState = 0;
         break;
       } //end switch gameState
     } //end Model valid (i.e. loaded)
 
-    rng.generate(); //Cnstantly generate a random stop postition for each wheel.
+    rng.generate(); //Constantly generate a random stop postition for each wheel.
 
     window.requestAnimationFrame(renderScene);
     renderer.render(scene, camera);
