@@ -1,0 +1,45 @@
+body {
+	margin: 0;
+	font-family: Monospace;
+	color: #555555;
+	margin: 0;
+	overflow: hidden;
+}
+
+/* unvisited link */
+a {
+  color: #5555FF;
+}
+	
+canvas {
+	width: 100%;
+	height: 100%
+}
+
+#info {
+	text-align: center;
+	padding: 10px;
+	z-index: 20;
+  width: 100%;
+  position: absolute;
+}
+
+.gamecard {
+	text-align: left;
+	right: 0;
+	opacity: 0.8;
+	padding: 0;
+	z-index: 10;
+  width: 200px;
+  height: 170px;
+  position: absolute;
+  background-image: url("../images/gamecard.png");
+  background-repeat: no-repeat;
+}
+
+h2 {
+	background-color: #E8DFE0;
+	color: black;
+	font-size: 15px;
+	margin-top: 140px;
+}
