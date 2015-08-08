@@ -1,3 +1,5 @@
+NOTE: There is a build script for Linux to do most of tese tasks. See build.sh
+
 On master branch ensure grunt and dependancies are installed and run grunt to create/update the gh-pages subdirectory.
 Then switch to the gh-pages branch and copy the contents of the gh-pages directory (including js and images folders)
 up one level (to the root of the gh-pages branch). Add, Commit and Push to github.
