@@ -1,0 +1,4 @@
+- Export the wheel into the js folder, calling it wheel.json. (See image in this folder for the export options you should use).
+- After exporting the json file will need editing to ensure that the texture will load. This is because the path for the texture will be wrong.
+- Open wheel.json and search for the line containing: `"mapDiffuse": "wheel.png",`
+- Change it to "mapDiffuse": `"../images/wheel.png",` and save the file.
