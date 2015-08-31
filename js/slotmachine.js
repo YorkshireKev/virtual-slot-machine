@@ -104,29 +104,24 @@ function virtualSlotMachine() {
 
   //Load Wheel
   var wheels = [];
-  var wheelTexture, wheelMaterial, loader;
-  wheelTexture = THREE.ImageUtils.loadTexture("images/wheel.png");
-  wheelTexture.minFilter = THREE.NearestFilter;
-  wheelMaterial = new THREE.MeshPhongMaterial({
-    ambient: 0x999999,
-    color: 0xffffff,
-    specular: 0x333333,
-    shininess: 8,
-    shading: THREE.SmoothShading,
-    map: wheelTexture
-  });
+  var loader;
+
+  //Texture loaded from wheel.json file vial loaded routine below.
+  /*var wheelMaterial = new THREE.MeshPhongMaterial({
+    map: THREE.ImageUtils.loadTexture('images/wheel.png')
+  });*/
 
   // instantiate a loader
   loader = new THREE.JSONLoader();
   // load a resource
   loader.load(
     // resource URL
-    'js/wheel.js',
+    'js/wheel.json',
     // Function when resource is loaded
-    function (geometry) {
+    function (geometry, materials) {
       var ix = 0;
       for (ix = 0; ix < 3; ix += 1) {
-        wheels[ix] = new THREE.Mesh(geometry, wheelMaterial);
+        wheels[ix] = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials));
         wheels[ix].scale.x = 10;
         wheels[ix].scale.y = 10;
         wheels[ix].scale.z = 10;
@@ -303,7 +298,6 @@ function virtualSlotMachine() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    console.log("resize!");
   }
   window.addEventListener('resize', onResize, false);
 
