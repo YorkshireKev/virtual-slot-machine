@@ -13,8 +13,8 @@ module.exports = function (grunt) {
           src: './css/style.css',
           dest: './gh-pages/css/style.css'
         }, {
-          src: './js/wheel.js',
-          dest: './gh-pages/js/wheel.js'
+          src: './js/wheel.json',
+          dest: './gh-pages/js/wheel.json'
         }, {
           src: './js/stats.min.js',
           dest: './gh-pages/js/stats.min.js'
